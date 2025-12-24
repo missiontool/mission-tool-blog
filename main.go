@@ -149,5 +149,57 @@ func main() {
 		c.JSON(http.StatusCreated, gin.H{"data": post})
 	})
 
+	// 路由5 修改文章 (PUT)
+	r.PUT("/posts/:id", func(c *gin.Context) {
+		id := c.Param("id")
+
+		// 先檢查文章存不存在
+		var post Post
+		if err := db.First(&post, id).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "找不到這篇文章"})
+			return
+		}
+
+		// 接收新的資料 (這裡我們複用 CreatePostInput，因為欄位一樣)
+		var input CreatePostInput
+		if err := c.ShouldBindJSON(&input); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		// 更新欄位
+		// Model(&post) 會鎖定我們要改的那一筆，Updates 會把 input 裡面的值填進去
+		result := db.Model(&post).Updates(Post{
+			Title:    input.Title,
+			Content:  input.Content,
+			Status:   input.Status,
+			Category: input.Category,
+		})
+
+		if result.Error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"data": post})
+	})
+
+	// 路由6 刪除文章 (DELETE)
+	r.DELETE("/posts/:id", func(c *gin.Context) {
+		id := c.Param("id")
+
+		// 直接執行刪除
+		// GORM 的 delete 是「軟刪除 (Soft Delete)」，只會標記 deleted_at 時間，資料不會真的消失
+		// 這樣比較安全，以後要救回來還有機會
+		result := db.Delete(&Post{}, id)
+
+		if result.Error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "文章已刪除"})
+	})
+
 	r.Run(":8080")
 }
