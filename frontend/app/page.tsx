@@ -23,7 +23,7 @@ interface ApiResponse {
 async function getPosts() {
   // 注意：這裡是去抓 Go 的 API (8080 Port)
   // 如果之後報錯，我們會把 localhost 改成 127.0.0.1
-  const res = await fetch('${API_URL}/posts', {
+  const res = await fetch(`${API_URL}/posts`, {
     cache: 'no-store', // 關鍵：告訴 Next.js 不要快取，每次都抓最新的 (開發時方便)
   });
 

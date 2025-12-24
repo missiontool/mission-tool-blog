@@ -26,7 +26,7 @@ export default function CreatePostPage() {
 
     try {
       // 3. 發送 POST 請求給 Go 後端
-      const res = await fetch('${API_URL}/posts', {
+      const res = await fetch(`${API_URL}/posts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
