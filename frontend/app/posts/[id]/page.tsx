@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import DeleteButton from '@/app/posts/components/DeleteButton';
+import MarkdownRenderer from '@/app/posts/components/MarkdownRenderer';
 
 // 1. 定義資料結構
 interface Post {
@@ -57,9 +58,13 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         </div>
 
         {/* 文章內容 */}
-        <article className="prose lg:prose-xl text-gray-700 leading-relaxed whitespace-pre-wrap">
+        {/* <article className="prose lg:prose-xl text-gray-700 leading-relaxed whitespace-pre-wrap">
           {post.content}
-        </article>
+        </article> */}
+
+        <div className="mb-10">
+            <MarkdownRenderer content={post.content} />
+        </div>
 
         <div className="border-t pt-6 flex justify-end gap-4">
            {/* 編輯按鈕 */}

@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* 這是 TailwindCSS 的一個插件，用來設定字體 */
+@plugin "@tailwindcss/typography"; 
 
 :root {
   --background: #ffffff;
