@@ -1,0 +1,16 @@
+# Go 相關
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+tmp/
+
+# Next.js / Node 相關 (絕對不能傳)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+
+# 系統檔案
+.DS_Store
