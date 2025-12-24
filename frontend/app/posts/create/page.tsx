@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation'; // 用來跳轉頁面
 import Link from 'next/link';
+import { API_URL } from '../../config';
 
 export default function CreatePostPage() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function CreatePostPage() {
 
     try {
       // 3. 發送 POST 請求給 Go 後端
-      const res = await fetch('http://localhost:8080/posts', {
+      const res = await fetch('${API_URL}/posts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

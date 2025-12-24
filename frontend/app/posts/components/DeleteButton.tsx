@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { API_URL } from '../../config';
 
 export default function DeleteButton({ id }: { id: number }) {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function DeleteButton({ id }: { id: number }) {
 
     try {
       // 2. 呼叫後端 DELETE API
-      const res = await fetch(`http://localhost:8080/posts/${id}`, {
+      const res = await fetch(`${API_URL}/posts/${id}`, {
         method: 'DELETE',
       });
 

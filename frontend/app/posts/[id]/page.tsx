@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import DeleteButton from '@/app/posts/components/DeleteButton';
 import MarkdownRenderer from '@/app/posts/components/MarkdownRenderer';
+import { API_URL } from '../../config';
 
 // 1. 定義資料結構
 interface Post {
@@ -14,7 +15,7 @@ interface Post {
 // 2. 抓取單篇文章的函式
 async function getPost(id: string) {
   // 這裡的 id 終於會是 "1" 而不是 "undefined" 了
-  const res = await fetch(`http://localhost:8080/posts/${id}`, {
+  const res = await fetch(`${API_URL}/posts/${id}`, {
     cache: 'no-store',
   });
 

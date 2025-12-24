@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react'; // use 是 Next.js 15 解開 params 的新招
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { API_URL } from '../../../config';
 
 export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   // Next.js 15: Client Component 解開 params 的標準寫法
@@ -22,7 +23,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
   // 1. 進入頁面時，先去後端抓「舊資料」
   useEffect(() => {
-    fetch(`http://localhost:8080/posts/${id}`)
+    fetch(`${API_URL}/posts/${id}`)
       .then(res => res.json())
       .then(data => {
         // 注意：我們的後端回傳格式是 { data: { ... } }
@@ -48,7 +49,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
     try {
       // 注意：這裡是 PUT 方法
-      const res = await fetch(`http://localhost:8080/posts/${id}`, {
+      const res = await fetch(`${API_URL}/posts/${id}`, {
         method: 'PUT', 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
