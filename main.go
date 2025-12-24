@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
+	// 讀取系統環境變數
 	// 跨域套件，用來處理跨域問題
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -42,9 +44,14 @@ type CreatePostInput struct {
 var db *gorm.DB
 
 func main() {
-	// 2. 設定資料庫連線 (把妳 Supabase 的那串 URI 貼在下面引號裡)
-	// 格式範例: "postgres://postgres.xxxx:密碼@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres"
-	dsn := "postgresql://postgres.nfuzwzjnwicvcdzhowsu:V8Bwkc%23-4ZU5Dbi@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?default_query_exec_mode=simple_protocol"
+	// 1. 設定資料庫連線
+	// 優先讀取環境變數 (雲端使用)
+	dsn := os.Getenv("DATABASE_URL")
+
+	// 如果環境變數沒有設定 (本地測試)
+	if dsn == "" {
+		dsn = "postgresql://postgres.nfuzwzjnwicvcdzhowsu:V8Bwkc%23-4ZU5Dbi@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?default_query_exec_mode=simple_protocol"
+	}
 
 	var err error
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
@@ -201,5 +208,12 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"message": "文章已刪除"})
 	})
 
-	r.Run(":8080")
+	// 啟動伺服器
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // 本機開發時用 8080
+	}
+
+	// 讓伺服器監聽指定的 port
+	r.Run(":" + port)
 }
