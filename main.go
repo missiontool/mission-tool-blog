@@ -53,6 +53,12 @@ func main() {
 		dsn = "postgresql://postgres.nfuzwzjnwicvcdzhowsu:V8Bwkc%23-4ZU5Dbi@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?default_query_exec_mode=simple_protocol"
 	}
 
+	// Host: aws-1-ap-south-1.pooler.supabase.com
+	// Port: 6543
+	// Database: postgres
+	// Username: postgres.nfuzwzjnwicvcdzhowsu
+	// Password: V8Bwkc#-4ZU5Dbi
+
 	var err error
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		// 不要自動建立資料表

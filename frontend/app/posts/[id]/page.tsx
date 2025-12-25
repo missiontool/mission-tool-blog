@@ -27,7 +27,28 @@ async function getPost(id: string) {
   return json.data;
 }
 
-// 3. 頁面元件
+// 3. SEO 設定
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  // 取得網址上的 id
+  const { id } = await params;
+  
+  // 去後端抓這篇文章的資料
+  // (Next.js 很聰明，如果下面 PostPage 也要抓同一篇，它只會發送一次請求，不會浪費效能)
+  const post = await getPost(id); 
+
+  // 回傳這頁專屬的 SEO 設定
+  return {
+    title: post.title, // 瀏覽器分頁標題變成了文章標題
+    description: post.content.substring(0, 100) + "...", // 抓文章前 100 字當描述
+    openGraph: {
+        title: post.title,
+        description: post.content.substring(0, 100) + "...",
+        // images: ['/你的封面圖.jpg'], // 未來可以加圖片
+    }
+  };
+}
+
+// 4. 頁面元件
 // 🔥 關鍵修正：注意 params 的型別變成了 Promise
 export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
   
