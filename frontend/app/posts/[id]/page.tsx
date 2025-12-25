@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import DeleteButton from '@/app/posts/components/DeleteButton';
 import MarkdownRenderer from '@/app/posts/components/MarkdownRenderer';
+import EditButton from '@/app/posts/components/EditButton';
 import { API_URL } from '../../config';
 
 // 1. 定義資料結構
@@ -90,12 +91,15 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
 
         <div className="border-t pt-6 flex justify-end gap-4">
            {/* 編輯按鈕 */}
-           <Link 
+           {/* <Link 
              href={`/posts/${post.id}/edit`}
              className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition text-sm font-medium"
            >
              編輯文章
-           </Link>
+           </Link> */}
+
+           {/* 編輯按鈕 (只有登入者看得到) */}
+           <EditButton id={post.id} />
 
            <DeleteButton id={post.id} />
         </div>
