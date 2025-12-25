@@ -21,6 +21,15 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     category: ''
   });
 
+  // 安全檢查：一進來就檢查有沒有登入
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('請先登入！');
+      router.push('/login');
+    }
+  }, [router]);
+
   // 1. 進入頁面時，先去後端抓「舊資料」
   useEffect(() => {
     fetch(`${API_URL}/posts/${id}`)
@@ -48,10 +57,17 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     setIsSaving(true);
 
     try {
+      // 從瀏覽器拿出通行證 (重要！)
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('未登入');
+
       // 注意：這裡是 PUT 方法
       const res = await fetch(`${API_URL}/posts/${id}`, {
         method: 'PUT', 
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(formData),
       });
 

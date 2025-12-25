@@ -1,6 +1,6 @@
 'use client'; // 🔥 關鍵：這一行一定要在最上面！宣告這是客戶端元件
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'; // 用來跳轉頁面
 import Link from 'next/link';
 import { API_URL } from '../../config';
@@ -16,8 +16,17 @@ export default function CreatePostPage() {
     title: '',
     content: '',
     status: 'published',
-    category: '' // 預設為空，強迫使用者選擇
+    category: 'Dev' // 預設為空，強迫使用者選擇
   });
+
+  // 安全檢查：一進來就檢查有沒有鑰匙，沒有就踢去登入頁
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('請先登入！');
+      router.push('/login');
+    }
+  }, [router]);
 
   // 處理送出
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,11 +34,17 @@ export default function CreatePostPage() {
     setIsLoading(true); // 2. 鎖住按鈕，變更文字
 
     try {
-      // 3. 發送 POST 請求給 Go 後端
+      // 從瀏覽器拿出通行證 (重要！)
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('未登入');
+
+      // 發送 POST 請求給 Go 後端
       const res = await fetch(`${API_URL}/posts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // 這裡一定要加上 Authorization，後端保全才會放行 (重要！)
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
@@ -38,7 +53,7 @@ export default function CreatePostPage() {
         throw new Error('新增失敗');
       }
 
-      // 4. 成功後，跳轉回首頁
+      // 成功後，跳轉回首頁
       router.push('/'); 
       router.refresh(); // 強制讓首頁重抓資料
       
