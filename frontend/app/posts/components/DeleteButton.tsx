@@ -1,12 +1,19 @@
 'use client'; // 客戶端元件
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { API_URL } from '../../config';
 
 export default function DeleteButton({ id }: { id: number }) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 👈 新增狀態
+  // 👇 新增這個檢查
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) setIsLoggedIn(true);
+  }, []);
 
   const handleDelete = async () => {
     // 1. 瀏覽器原生的確認視窗
@@ -16,9 +23,16 @@ export default function DeleteButton({ id }: { id: number }) {
     setIsDeleting(true);
 
     try {
+      // 從 LocalStorage 拿 Token
+      const token = localStorage.getItem('token');
+
       // 2. 呼叫後端 DELETE API
       const res = await fetch(`${API_URL}/posts/${id}`, {
         method: 'DELETE',
+        headers: {
+            // 關鍵：把通行證夾在 Header 傳給後端
+            'Authorization': `Bearer ${token}` 
+        }
       });
 
       if (!res.ok) throw new Error('刪除失敗');
@@ -32,6 +46,8 @@ export default function DeleteButton({ id }: { id: number }) {
       setIsDeleting(false);
     }
   };
+
+  if (!isLoggedIn) return null;
 
   return (
     <button

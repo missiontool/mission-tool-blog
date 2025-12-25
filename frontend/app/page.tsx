@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { API_URL } from './config';
+import AddButton from '@/app/components/AddButton';
 
 // 1. 定義資料長相 (TypeScript 介面)
 // 這邊要對應妳 Go 語言 Struct 的 JSON Tag
@@ -50,13 +51,15 @@ export default async function Home() {
           </div>
           
           {/* 新增按鈕 */}
-          <Link 
+          {/* <Link 
             href="/posts/create" 
             className="bg-black text-white px-5 py-2.5 rounded-lg hover:bg-gray-800 transition shadow-sm flex items-center gap-2 font-medium"
           >
             <span className="text-xl leading-none">+</span>
             <span>新增文章</span>
-          </Link>
+          </Link> */}
+          {/* 新增按鈕 (只有登入者看得到) */}
+          <AddButton />
         </div>
         
         <div className="grid gap-4">
