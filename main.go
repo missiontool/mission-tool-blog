@@ -11,6 +11,8 @@ import (
 	// 跨域套件，用來處理跨域問題
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -29,6 +31,19 @@ type Post struct {
 	Content  string `json:"content"`
 	Status   string `json:"status"` // 例如: "draft", "published"
 	Category string `json:"category"`
+}
+
+// 對應資料庫的 Users 表格
+type User struct {
+	ID       uint   `gorm:"primaryKey"`
+	Username string `gorm:"unique"`
+	Password string
+}
+
+// 用來接收前端傳來的登入請求 (帳號/密碼)
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 // 2. 新增資料結構
@@ -84,6 +99,60 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
+
+	// 登入 API
+	r.POST("/login", func(c *gin.Context) {
+		var input LoginRequest
+
+		// 1. 解析前端傳來的 JSON
+		if err := c.ShouldBindJSON(&input); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "資料格式錯誤"})
+			return
+		}
+
+		// 2. 去資料庫找這個使用者
+		var user User
+		if err := db.Where("username = ?", input.Username).First(&user).Error; err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "帳號或密碼錯誤"}) // 故意不說是哪個錯，增加安全性
+			return
+		}
+
+		// 3. 檢查密碼 (比較 明碼 vs 雜湊碼)
+		err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "帳號或密碼錯誤"})
+			return
+		}
+
+		// 4. 密碼正確！開始發行 JWT (識別證)
+		// 設定這張證件的內容 (Claims)
+		claims := jwt.MapClaims{
+			"sub": user.ID,                               // 使用者 ID
+			"exp": time.Now().Add(time.Hour * 24).Unix(), // 過期時間：24小時後
+		}
+
+		// 建立 Token 物件
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+		// 簽名 (蓋章) - 這邊需要一個 "密鑰"，我們先讀環境變數，讀不到就用預設值
+		jwtSecret := os.Getenv("JWT_SECRET")
+		if jwtSecret == "" {
+			jwtSecret = "secret_key_for_local_dev" // 本機開發用的預設鑰匙
+		}
+
+		// 產生字串
+		tokenString, err := token.SignedString([]byte(jwtSecret))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "無法產生 Token"})
+			return
+		}
+
+		// 5. 回傳 Token 給前端
+		c.JSON(http.StatusOK, gin.H{
+			"token":   tokenString,
+			"message": "登入成功",
+		})
+	})
 
 	// 路由1 首頁
 	r.GET("/", func(c *gin.Context) {
